@@ -13,6 +13,11 @@ use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 class ApiController extends Controller
 {
 	public  $loginAfterSignUp = true;
+
+	public function __construct()
+    {
+        $this->middleware('auth:api', ['except' => ['login', 'refresh']]);
+    }
 	
 	public function register(RegisterAuthRequest $request)
     {
@@ -36,7 +41,6 @@ class ApiController extends Controller
     {
         $input = $request->only('email', 'password');
         $jwt_token = null;
-
         if (!$jwt_token = JWTAuth::attempt($input)) {
             return response()->json([
                 'success' => false,
@@ -45,7 +49,11 @@ class ApiController extends Controller
         }
 
         return response()->json([
-            'success' => true,
+			'success' => true,
+			'code' => 20000,
+			'data' => [
+				'token' => $jwt_token,
+			],
             'token' => $jwt_token,
         ]);
 	}
